@@ -9,7 +9,7 @@ spring:
     url: jdbc:mysql://localhost:3306/psy?useUnicode=true&characterEncoding=UTF8&useSSL=false&autoReconnect=true&serverTimezone=UTC
     driver-class-name: com.mysql.jdbc.Driver
     username: root
-    password: 940726
+    password: 123456
   cloud:
     nacos:
       discovery:
@@ -21,7 +21,7 @@ spring:
     host: localhost
     port: 26379
     timeout: 6000
-    password: iese200-dbyongyou
+    password:
     database: 0
     ##sentinel配置
     sentinel:

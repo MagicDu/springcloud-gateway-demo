@@ -39,7 +39,7 @@ public class GatewayServiceHandler implements ApplicationEventPublisherAware, Co
 
     @Override
     public void run(String... args) throws Exception {
-        loadRouteConfigfromDataBase();
+        loadRouteConfigFromDataBase();
     }
 
     @Override
@@ -49,10 +49,10 @@ public class GatewayServiceHandler implements ApplicationEventPublisherAware, Co
 
 
     /**
-     * 从数据库加载路由配置，刷新路由
+     * load route info from database to redis then publish
      * @return
      */
-    private void loadRouteConfigfromDataBase() {
+    private void loadRouteConfigFromDataBase() {
         // 从redis  删除之前的路由信息
         redisTemplate.delete(RedisRouteDefinitionRepository.GATEWAY_ROUTES);
         List<SysGateWayRoute> routeList = repository.findAll();
@@ -65,13 +65,20 @@ public class GatewayServiceHandler implements ApplicationEventPublisherAware, Co
     }
 
 
-
+    /**
+     * save route info
+     * @param gatewayRoute
+     */
     public void saveRoute(SysGateWayRoute gatewayRoute){
         RouteDefinition definition=handleData(gatewayRoute);
         routeDefinitionWriter.save(Mono.just(definition)).subscribe();
         this.publisher.publishEvent(new RefreshRoutesEvent(this));
     }
 
+    /**
+     *  update route info
+     * @param gatewayRoute
+     */
     public void update(SysGateWayRoute gatewayRoute) {
         RouteDefinition definition=handleData(gatewayRoute);
         try {
@@ -83,7 +90,10 @@ public class GatewayServiceHandler implements ApplicationEventPublisherAware, Co
         }
     }
 
-
+    /**
+     * delete route info
+     * @param routeId
+     */
     public void deleteRoute(String routeId){
         routeDefinitionWriter.delete(Mono.just(routeId)).subscribe();
         this.publisher.publishEvent(new RefreshRoutesEvent(this));
@@ -91,7 +101,7 @@ public class GatewayServiceHandler implements ApplicationEventPublisherAware, Co
 
 
     /**
-     * 路由数据转换公共方法
+     * route data handel an convert
      *
      * @param gatewayRoute
      * @return
@@ -105,10 +115,10 @@ public class GatewayServiceHandler implements ApplicationEventPublisherAware, Co
 
         URI uri = null;
         if (gatewayRoute.getUri().startsWith("http")) {
-            //http地址
+            //http address
             uri = UriComponentsBuilder.fromHttpUrl(gatewayRoute.getUri()).build().toUri();
         } else {
-            //注册中心
+            //register center
             uri = UriComponentsBuilder.fromUriString("lb://" + gatewayRoute.getUri()).build().toUri();
         }
 
